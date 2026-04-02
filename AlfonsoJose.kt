@@ -29,24 +29,34 @@ class AlfonsoJose {
         if (!archivo.exists()) {
             System.err.println("Error: El archivo $input no existe")
             return null
-            }
+        }
 
         val matriz = mutableListOf<IntArray>()
         var anchoEsperado = -1
-        archivo.forEachLine { linea ->
+
+        val lineas = archivo.readLines()
+
+        for (linea in lineas) {
             if (linea.isNotBlank()) {
-                val contenidoLinea = linea.trim()
+                val contenido = linea.trim()
+
                 if (anchoEsperado == -1) {
-                    anchoEsperado = contenidoLinea.length
-                } else if (contenidoLinea.length != anchoEsperado) {
+                    anchoEsperado = contenido.length
+                } else if (contenido.length != anchoEsperado) {
                     System.err.println("Error de formato: La fila '${matriz.size + 1}' tiene un tamaño distinto.")
-                    return@leerEntrada null
+                    return null
                 }
 
-                val fila = contenidoLinea.map { it.toString().toInt() }.toIntArray()
-                matriz.add(fila)
+                try {
+                    val fila = contenido.map { it.toString().toInt() }.toIntArray()
+                    matriz.add(fila)
+                } catch (e: Exception) {
+                    System.err.println("Error: Caracter no numérico encontrado.")
+                    return null
+                }   
             }
        }
+
         return if (matriz.isEmpty()) null else matriz.toTypedArray()
     }
 
