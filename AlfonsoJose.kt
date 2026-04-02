@@ -1,26 +1,53 @@
 import java.io.File
 import java.util.PriorityQueue
 
-class Celda(val altura: Int, val fila: Int, val columna: Int): Comparable<Celda> {
+data class Celda(val altura: Int, val fila: Int, val columna: Int): Comparable<Celda> {
     override fun compareTo(other: Celda): Int = this.altura.compareTo(other.altura)
 }
 
-object AlfonsoJose {
+class AlfonsoJose {
+
+    companion object {
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val instancia = AlfonsoJose()
+            val ciudad = instancia.leerEntrada("atlantis.txt")
+            
+            if (ciudad != null) {
+                val resultado = instancia.calcularAgua(ciudad)
+                println(resultado)
+            } else {
+                System.err.println("Error: No se pudo procesar el archivo 'atlantis.txt'.")
+                System.err.println("Asegúrate de que el archivo exista y que todas las filas tengan el mismo tamaño.")
+            }
+        }
+    }
+
     fun leerEntrada(input: String): Array<IntArray>? {
         val archivo = File(input)
         if (!archivo.exists()) {
-            println("El archivo $input no existe")
+            System.err.println("Error: El archivo $input no existe")
             return null
-        }
+            }
 
         val matriz = mutableListOf<IntArray>()
+        var anchoEsperado = -1
         archivo.forEachLine { linea ->
             if (linea.isNotBlank()) {
-                val fila = linea.trim().map { it.toString().toInt() }.toIntArray()
+                val contenidoLinea = linea.trim()
+                if (anchoEsperado == -1) {
+                    anchoEsperado = contenidoLinea.length
+                } else if (contenidoLinea.length != anchoEsperado) {
+                    System.err.println("Error de formato: La fila '${matriz.size + 1}' tiene un tamaño distinto.")
+                    return@leerEntrada null
+                }
+
+                val fila = contenidoLinea.map { it.toString().toInt() }.toIntArray()
                 matriz.add(fila)
             }
-        }
-        return matriz.toTypedArray()
+       }
+        return if (matriz.isEmpty()) null else matriz.toTypedArray()
     }
 
     fun calcularAgua(matriz: Array<IntArray>): Int {
@@ -62,14 +89,5 @@ object AlfonsoJose {
             }
         }
         return totalAgua
-    }
-
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val ciudad = leerEntrada("atlantis.txt")
-        if (ciudad != null) {
-            val resultado = calcularAgua(ciudad)               
-            println(resultado)
-        }
     }
 }
